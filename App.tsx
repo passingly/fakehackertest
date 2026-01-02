@@ -6,81 +6,93 @@ import SystemStats from './components/SystemStats';
 
 const App: React.FC = () => {
   const [isAlarm, setIsAlarm] = useState(false);
+  const [region, setRegion] = useState('SFO1');
 
-  // Random alarm effect for "immersion"
   useEffect(() => {
+    const regions = ['SFO1', 'ICN1', 'NRT1', 'CDG1', 'LHR1'];
     const interval = setInterval(() => {
-      if (Math.random() > 0.95) {
-        setIsAlarm(true);
-        setTimeout(() => setIsAlarm(false), 2000);
-      }
-    }, 10000);
+      setRegion(regions[Math.floor(Math.random() * regions.length)]);
+    }, 15000);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <div className={`relative w-full h-full p-4 flex flex-col gap-4 overflow-hidden transition-colors duration-300 ${isAlarm ? 'bg-red-900/10' : 'bg-black'}`}>
+    <div className={`relative w-full h-full p-6 flex flex-col gap-6 overflow-hidden transition-colors duration-500 ${isAlarm ? 'bg-red-950/20' : 'bg-black'}`}>
       <MatrixRain />
-      
-      {/* Scanline overlay */}
       <div className="scanline"></div>
 
       {/* Header */}
-      <header className="flex justify-between items-center z-10 px-4 py-2 bg-black/40 border-b border-green-500/20 rounded shadow-[0_0_15px_rgba(34,197,94,0.1)]">
-        <div className="flex items-center gap-4">
-          <div className="text-green-500 font-bold tracking-[0.3em] text-xl">
-            OMNI<span className="text-green-300">HACKER</span>
+      <header className="flex justify-between items-center z-10 px-6 py-3 bg-black/60 border border-green-500/30 rounded backdrop-blur-xl shadow-[0_0_30px_rgba(34,197,94,0.1)]">
+        <div className="flex items-center gap-6">
+          <div className="text-green-400 font-bold tracking-[0.4em] text-2xl drop-shadow-[0_0_10px_rgba(34,197,94,0.8)]">
+            EDGE<span className="text-white">NODE</span>
           </div>
-          <div className="hidden md:flex gap-4 ml-8 text-[10px] text-green-700 font-mono">
-            <span className="flex items-center gap-1"><div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-ping"></div> LINK: ACTIVE</span>
-            <span>SAT: X-902-B</span>
-            <span>SEC: LVL-9</span>
+          <div className="hidden lg:flex gap-6 text-[10px] text-green-700 font-mono border-l border-green-500/20 pl-6">
+            <span className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,1)]"></div> 
+              STATUS: STABLE
+            </span>
+            <span>REGION: {region}</span>
+            <span className="text-green-500">RUNTIME: VERCEL_EDGE</span>
           </div>
         </div>
-        <div className="text-right">
-          <div className="text-[10px] text-green-500/50 uppercase">User: Anonymous_Operator</div>
-          <div className="text-[10px] text-green-500">Node: {Math.random().toString(16).substr(2, 8).toUpperCase()}</div>
+        <div className="flex flex-col items-end font-mono">
+          <span className="text-[10px] text-green-500/40">AUTH_LEVEL: ROOT_OPERATOR</span>
+          <span className="text-[11px] text-green-400 font-bold">SESSION: 0x{Math.random().toString(16).slice(2, 10).toUpperCase()}</span>
         </div>
       </header>
 
       {/* Main Grid */}
-      <main className="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-4 z-10 overflow-hidden">
-        {/* Sidebar: Stats */}
-        <section className="lg:col-span-1 flex flex-col gap-4">
+      <main className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 z-10 overflow-hidden">
+        {/* Left Side: Stats (4 units) */}
+        <section className="lg:col-span-3 flex flex-col gap-6">
           <SystemStats />
           
-          <div className="flex-1 bg-black/80 border border-green-500/30 p-4 rounded text-[10px] space-y-3 font-mono overflow-y-auto">
-            <h3 className="text-green-400 border-b border-green-500/20 pb-1 mb-2">SECURITY_ALERTS</h3>
-            <div className="text-red-500/80 animate-pulse">! ATTEMPTED BYPASS: 12.0.2.1</div>
-            <div className="text-yellow-500/80">! BRUTE_FORCE: BLOCKED [NODE_9]</div>
-            <div className="text-green-500/80">√ ENCRYPTION_ROTATED [SHA-256]</div>
-            <div className="text-blue-500/80">i NEW_VPN_TUNNEL: BUCHAREST_NODE</div>
-            <div className="text-red-500/80 font-bold">! CRITICAL: DATA_STREAM_DETECTED</div>
+          <div className="flex-1 bg-black/60 border border-green-500/20 p-5 rounded text-[10px] space-y-4 font-mono overflow-y-auto backdrop-blur-sm terminal-glow">
+            <h3 className="text-green-400 border-b border-green-500/20 pb-2 mb-2 font-bold flex justify-between">
+              <span>SECURITY_MONITOR</span>
+              <span className="animate-pulse">● LIVE</span>
+            </h3>
+            <div className="space-y-2">
+              <div className="flex justify-between text-blue-400">
+                <span>> SSL_HANDSHAKE</span>
+                <span>OK</span>
+              </div>
+              <div className="flex justify-between text-green-500/70">
+                <span>> PACKET_FILTER</span>
+                <span>ACTIVE</span>
+              </div>
+              <div className="flex justify-between text-yellow-500">
+                <span>> PING_DELAY</span>
+                <span>14ms</span>
+              </div>
+              <div className="flex justify-between text-red-500 font-bold">
+                <span>> BREACH_ATTEMPT</span>
+                <span>BLOCKED</span>
+              </div>
+            </div>
+            <div className="pt-4 mt-4 border-t border-green-500/10 text-green-900 text-[9px] uppercase">
+              Vercel Infrastructure Monitoring v4.2
+            </div>
           </div>
         </section>
 
-        {/* Center: Terminal */}
-        <section className="lg:col-span-3 h-full">
+        {/* Right Side: Terminal (8 units) */}
+        <section className="lg:col-span-9 h-full">
           <Terminal />
         </section>
       </main>
 
-      {/* Alarm Overlay */}
-      {isAlarm && (
-        <div className="fixed inset-0 pointer-events-none z-50 border-[10px] border-red-500/20 animate-pulse flex items-center justify-center">
-          <div className="bg-red-500/20 px-10 py-4 text-red-500 font-bold text-4xl border border-red-500 backdrop-blur-xl">
-            SYSTEM BREACH DETECTED
-          </div>
-        </div>
-      )}
-
       {/* Footer */}
-      <footer className="z-10 flex justify-between items-center text-[9px] text-green-700 bg-black/40 p-2 rounded border border-green-500/10">
-        <div>&copy; 2025 UNDERGROUND_REVOLUTION.SH</div>
-        <div className="flex gap-4">
-          <span className="animate-pulse">LATENCY: 12ms</span>
-          <span>PACKETS: 14223/s</span>
-          <span className="text-green-500">ENCRYPTION: AES-4096-CTR</span>
+      <footer className="z-10 flex justify-between items-center text-[10px] text-green-800 bg-black/40 px-6 py-2 rounded border border-green-500/10 font-mono">
+        <div className="flex gap-4 items-center">
+          <div className="w-2 h-2 bg-white rotate-45"></div>
+          <span>POWERED BY VERCEL EDGE & GEMINI AI</span>
+        </div>
+        <div className="flex gap-8">
+          <span>UPTIME: 100.0%</span>
+          <span className="text-green-600">ENCRYPTION: 4096-BIT RSA</span>
+          <span className="hidden md:inline">SYSTEM_ARCH: WASM_EDGE</span>
         </div>
       </footer>
     </div>
