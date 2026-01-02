@@ -1,7 +1,8 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { LogEntry } from '../types';
-import { getCyberAssistantResponse } from '../services/geminiService';
+import { getLocalResponse } from '../services/localResponseService';
+import { audioService } from '../services/audioService';
 
 const Terminal: React.FC = () => {
   const [logs, setLogs] = useState<LogEntry[]>([]);
@@ -10,12 +11,12 @@ const Terminal: React.FC = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const bootLogs = [
-    "VERCEL_EDGE_RUNTIME: v1.24.0 INITIALIZING...",
-    "CONNECTING TO GLOBAL EDGE NETWORK [SFO1, ICN1, NRT1]...",
-    "HANDSHAKE PROTOCOL: SECURE-AES-GCM",
-    "ENVIRONMENT: PRODUCTION",
-    "AI_LINK: KAIROS SENTIENT ASSISTANT ONLINE.",
-    "READY FOR OPERATOR INPUT."
+    "OMNI_KERNEL_V4_LOADED...",
+    "LOCAL_ENCRYPTION_ENGINE: ONLINE",
+    "GHOST_SHELL_EMULATOR: ACTIVE",
+    "SECURE_SHELL: CONNECTED_LOCAL",
+    "OPERATOR_IDENTIFIED: ROOT",
+    "--- SYSTEM READY ---"
   ];
 
   useEffect(() => {
@@ -23,11 +24,12 @@ const Terminal: React.FC = () => {
     const interval = setInterval(() => {
       if (currentLogIndex < bootLogs.length) {
         addLog(bootLogs[currentLogIndex], 'success');
+        audioService.playClick();
         currentLogIndex++;
       } else {
         clearInterval(interval);
       }
-    }, 400);
+    }, 150);
 
     return () => clearInterval(interval);
   }, []);
@@ -48,6 +50,7 @@ const Terminal: React.FC = () => {
     e.preventDefault();
     if (!input.trim() || isProcessing) return;
 
+    audioService.playClick();
     const cmd = input.trim().toLowerCase();
     setInput('');
     addLog(`$ ${cmd}`, 'info');
@@ -56,76 +59,81 @@ const Terminal: React.FC = () => {
       setLogs([]);
       return;
     }
-    if (cmd === 'help') {
-      addLog('CORE_SYSTEM_COMMANDS: help, clear, status, network, logs, chat [msg]', 'success');
-      return;
-    }
-    if (cmd === 'status') {
-      addLog('SYSTEM_HEALTH: NOMINAL', 'success');
-      addLog('CPU: 12% | MEM: 1.2GB/16GB | EDGE: SFO1', 'info');
-      return;
-    }
-    if (cmd === 'network') {
-      addLog('Tracing edge hop route...', 'info');
-      setTimeout(() => addLog('LOCAL -> VERCEL_EDGE [10.2.1.1] -> TARGET', 'success'), 1000);
+    if (cmd === 'hack') {
+      audioService.playAlert();
+      addLog('INITIATING_LOCAL_BRUTE_FORCE...', 'warning');
+      setTimeout(() => addLog('BYPASSING_VIRTUAL_FIREWALL: 42%', 'info'), 400);
+      setTimeout(() => addLog('ACCESS_GRANTED_BY_SHELL_INJECTION.', 'success'), 1200);
       return;
     }
 
     setIsProcessing(true);
-    const aiResponse = await getCyberAssistantResponse(cmd);
-    addLog(`KAIROS: ${aiResponse}`, 'ai');
-    setIsProcessing(false);
+    // 지연 시간 없이 로컬 응답 즉시 생성 (약간의 인공지능 느낌을 위해 아주 짧은 딜레이만 줌)
+    setTimeout(() => {
+      const response = getLocalResponse(cmd);
+      addLog(`KAIROS_LOCAL: ${response}`, 'ai');
+      audioService.playClick();
+      setIsProcessing(false);
+    }, 300);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInput(e.target.value);
+    audioService.playClick();
   };
 
   return (
-    <div className="flex flex-col h-full bg-black/40 border border-green-500/30 rounded p-4 font-mono overflow-hidden backdrop-blur-md relative terminal-glow">
-      <div className="flex justify-between items-center border-b border-green-500/20 pb-2 mb-4">
-        <div className="flex gap-2 text-[10px]">
-          <span className="text-red-500">● ERR: 0</span>
-          <span className="text-yellow-500">● WARN: 0</span>
-          <span className="text-green-500">● LIVE: SFO1</span>
+    <div className="flex flex-col h-full bg-black/40 border border-green-500/30 rounded p-6 font-mono overflow-hidden backdrop-blur-md relative terminal-glow">
+      <div className="flex justify-between items-center border-b border-green-500/20 pb-3 mb-4">
+        <div className="flex gap-4 text-[10px] tracking-tighter">
+          <span className="text-green-500 animate-pulse font-bold">MODE: LOCAL_GHOST_SHELL</span>
+          <span className="text-green-500/50">SEC: AES_LOCAL_OFFLINE</span>
         </div>
-        <span className="text-[10px] text-green-500/50 uppercase font-bold">VERCEL EDGE TERMINAL</span>
+        <div className="flex gap-1">
+          <div className="w-2 h-2 rounded-full bg-red-500"></div>
+          <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+          <div className="w-2 h-2 rounded-full bg-green-500"></div>
+        </div>
       </div>
 
       <div 
         ref={scrollRef}
-        className="flex-1 overflow-y-auto space-y-1 mb-4 text-[13px] leading-tight scrollbar-hide"
+        className="flex-1 overflow-y-auto space-y-1.5 mb-6 text-[13px] leading-relaxed scrollbar-hide"
       >
         {logs.map((log) => (
-          <div key={log.id} className="flex gap-3">
-            <span className="text-green-900 shrink-0">[{log.timestamp}]</span>
+          <div key={log.id} className="flex gap-4">
+            <span className="text-green-900/40 shrink-0 select-none">[{log.timestamp}]</span>
             <span className={
-              log.type === 'error' ? 'text-red-500' :
+              log.type === 'error' ? 'text-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' :
               log.type === 'warning' ? 'text-yellow-500' :
-              log.type === 'success' ? 'text-green-400 font-bold' :
+              log.type === 'success' ? 'text-green-400 font-bold drop-shadow-[0_0_3px_rgba(34,197,94,0.8)]' :
               log.type === 'ai' ? 'text-cyan-400 italic' :
-              'text-green-500'
+              'text-green-500/90'
             }>
               {log.message}
             </span>
           </div>
         ))}
         {isProcessing && (
-          <div className="flex gap-3 animate-pulse text-cyan-400">
-            <span className="text-green-900">[*]</span>
-            <span>KAIROS ANALYZING PACKETS...</span>
+          <div className="flex gap-4 animate-pulse text-cyan-400">
+            <span className="text-green-900/40">[*]</span>
+            <span className="tracking-widest">LOCAL_PROCESSING...</span>
           </div>
         )}
       </div>
 
-      <form onSubmit={handleCommand} className="relative flex items-center border-t border-green-500/10 pt-4">
-        <span className="mr-2 text-green-400 font-bold">$</span>
+      <form onSubmit={handleCommand} className="relative flex items-center border-t border-green-500/10 pt-5">
+        <span className="mr-3 text-green-400 font-bold select-none">$</span>
         <input 
           type="text"
           autoFocus
           value={input}
-          onChange={(e) => setInput(e.target.value)}
+          onChange={handleInputChange}
           disabled={isProcessing}
-          className="flex-1 bg-transparent border-none outline-none text-green-400 focus:ring-0 placeholder-green-900"
-          placeholder="ENTER SYSTEM COMMAND..."
+          className="flex-1 bg-transparent border-none outline-none text-green-400 focus:ring-0 placeholder-green-900/50 uppercase"
+          placeholder="ENTER CMD_CODE..."
         />
-        <div className="w-2 h-5 bg-green-500/80 cursor-blink ml-1 shadow-[0_0_10px_rgba(34,197,94,1)]"></div>
+        <div className="w-2.5 h-5 bg-green-500/80 cursor-blink ml-1 shadow-[0_0_15px_rgba(34,197,94,1)]"></div>
       </form>
     </div>
   );

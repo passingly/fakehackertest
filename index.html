@@ -16,7 +16,7 @@
             text-shadow: 0 0 5px rgba(34, 197, 94, 0.8);
         }
         
-        /* CRT Flicker Effect */
+        /* CRT Flicker & Noise */
         @keyframes flicker {
             0% { opacity: 0.97; }
             5% { opacity: 0.95; }
@@ -27,16 +27,29 @@
             80% { opacity: 0.98; }
             100% { opacity: 0.99; }
         }
-        
+
         .crt-overlay {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            background-size: 100% 2px, 3px 100%;
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.05));
+            background-size: 100% 3px, 3px 100%;
             pointer-events: none;
             z-index: 100;
-            animation: flicker 0.15s infinite;
+            animation: flicker 0.1s infinite;
+        }
+
+        /* Glitch Animation for UI elements */
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+        .glitch-hover:hover {
+            animation: glitch 0.3s cubic-bezier(.25,.46,.45,.94) both infinite;
         }
 
         .scanline {
@@ -46,7 +59,7 @@
             background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(34, 197, 94, 0.05) 50%, rgba(0, 0, 0, 0) 100%);
             position: absolute;
             bottom: 100%;
-            animation: scanline 8s linear infinite;
+            animation: scanline 10s linear infinite;
             pointer-events: none;
         }
 
@@ -55,12 +68,21 @@
             100% { bottom: -100px; }
         }
 
-        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: #000; }
         ::-webkit-scrollbar-thumb { background: #22c55e; border-radius: 10px; }
 
         .terminal-glow {
-            box-shadow: inset 0 0 20px rgba(34, 197, 94, 0.2), 0 0 20px rgba(34, 197, 94, 0.1);
+            box-shadow: inset 0 0 30px rgba(0, 255, 65, 0.1), 0 0 20px rgba(0, 255, 65, 0.05);
+        }
+
+        /* Ambient background pulse */
+        .bg-pulse {
+            animation: bg-pulse 4s ease-in-out infinite;
+        }
+        @keyframes bg-pulse {
+            0%, 100% { background-color: rgba(0, 20, 0, 1); }
+            50% { background-color: rgba(0, 10, 0, 1); }
         }
     </style>
 <script type="importmap">
@@ -70,12 +92,13 @@
     "react/": "https://esm.sh/react@^19.2.3/",
     "react": "https://esm.sh/react@^19.2.3",
     "recharts": "https://esm.sh/recharts@^3.6.0",
-    "@google/genai": "https://esm.sh/@google/genai@^1.34.0"
+    "@google/genai": "https://esm.sh/@google/genai@^1.34.0",
+    "lucide-react": "https://esm.sh/lucide-react@^0.446.0"
   }
 }
 </script>
 </head>
-<body class="m-0 p-0 h-screen w-screen overflow-hidden">
+<body class="m-0 p-0 h-screen w-screen overflow-hidden bg-pulse">
     <div class="crt-overlay"></div>
     <div id="root" class="h-full w-full"></div>
 </body>
